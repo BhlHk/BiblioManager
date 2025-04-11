@@ -1,22 +1,25 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ member.full_name() }} - Library Management System{% endblock %}
+{% block title %}{{ member.full_name() }} - Système de gestion de bibliothèque{% endblock %}
 
-{% block page_title %}Member Details{% endblock %}
+{% block page_title %}Profil membre{% endblock %}
 
 {% block page_actions %}
     <div class="btn-group" role="group">
         <a href="{{ url_for('members.index') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-1"></i> Back to Members
+            <i class="fas fa-arrow-left me-1"></i> Retour à la liste
         </a>
         <a href="{{ url_for('members.edit', id=member.id) }}" class="btn btn-warning">
-            <i class="fas fa-edit me-1"></i> Edit Member
+            <i class="fas fa-edit me-1"></i> Modifier
         </a>
         {% if member.active %}
             <a href="{{ url_for('loans.create') }}?member_id={{ member.id }}" class="btn btn-success">
-                <i class="fas fa-handshake me-1"></i> Create Loan
+                <i class="fas fa-handshake me-1"></i> Nouvel emprunt
             </a>
         {% endif %}
+        <a href="{{ url_for('members.dashboard') }}" class="btn btn-info">
+            <i class="fas fa-chart-bar me-1"></i> Tableau de bord
+        </a>
     </div>
 {% endblock %}
 
@@ -26,34 +29,57 @@
             <!-- Member Profile Card -->
             <div class="card mb-4">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Member Profile</h5>
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Profil membre</h5>
                 </div>
                 <div class="card-body member-profile">
-                    <h3 class="member-name">{{ member.full_name() }}</h3>
-                    <div class="member-info">
+                    <div class="text-center mb-3">
+                        <div class="avatar-circle">
+                            <span class="avatar-text">{{ member.first_name[0] }}{{ member.last_name[0] }}</span>
+                        </div>
+                    </div>
+                    <h3 class="member-name text-center">{{ member.full_name() }}</h3>
+                    <div class="member-info text-center">
                         {% if member.active %}
-                            <span class="badge bg-success mb-3">Active Member</span>
+                            <span class="badge bg-success mb-3">Membre actif</span>
                         {% else %}
-                            <span class="badge bg-danger mb-3">Inactive Member</span>
+                            <span class="badge bg-danger mb-3">Membre inactif</span>
                         {% endif %}
                     </div>
                     
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
-                            <i class="fas fa-envelope me-2"></i> {{ member.email }}
+                            <div class="d-flex justify-content-between">
+                                <div><i class="fas fa-envelope me-2"></i> Email</div>
+                                <div class="text-muted">{{ member.email }}</div>
+                            </div>
                         </li>
                         {% if member.phone %}
                             <li class="list-group-item">
-                                <i class="fas fa-phone me-2"></i> {{ member.phone }}
+                                <div class="d-flex justify-content-between">
+                                    <div><i class="fas fa-phone me-2"></i> Téléphone</div>
+                                    <div class="text-muted">{{ member.phone }}</div>
+                                </div>
                             </li>
                         {% endif %}
                         {% if member.address %}
                             <li class="list-group-item">
-                                <i class="fas fa-map-marker-alt me-2"></i> {{ member.address }}
+                                <div class="d-flex justify-content-between">
+                                    <div><i class="fas fa-map-marker-alt me-2"></i> Adresse</div>
+                                    <div class="text-muted">{{ member.address }}</div>
+                                </div>
                             </li>
                         {% endif %}
                         <li class="list-group-item">
-                            <i class="fas fa-calendar-alt me-2"></i> Member since {{ member.registration_date.strftime('%Y-%m-%d') }}
+                            <div class="d-flex justify-content-between">
+                                <div><i class="fas fa-calendar-alt me-2"></i> Inscrit depuis</div>
+                                <div class="text-muted">{{ member.registration_date.strftime('%d/%m/%Y') }}</div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div><i class="fas fa-book me-2"></i> Emprunts totaux</div>
+                                <div><span class="badge bg-primary">{{ loans|length }}</span></div>
+                            </div>
                         </li>
                     </ul>
                 </div>
@@ -61,14 +87,14 @@
                     <div>
                         {% if not member.active %}
                             <span class="text-danger">
-                                <i class="fas fa-exclamation-circle me-1"></i> This member is inactive
+                                <i class="fas fa-exclamation-circle me-1"></i> Ce membre est inactif
                             </span>
                         {% endif %}
                     </div>
                     <div>
-                        <form action="{{ url_for('members.delete', id=member.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this member?')">
-                            <button type="submit" class="btn btn-sm btn-danger btn-delete" {% if active_loans > 0 %}disabled{% endif %}>
-                                <i class="fas fa-trash me-1"></i> Delete Member
+                        <form action="{{ url_for('members.delete', id=member.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')">
+                            <button type="submit" class="btn btn-sm btn-danger btn-delete" {% if active_loans > 0 %}disabled title="Ce membre a des emprunts actifs"{% endif %}>
+                                <i class="fas fa-trash me-1"></i> Supprimer
                             </button>
                         </form>
                     </div>
@@ -76,45 +102,97 @@
             </div>
 
             <!-- Member Stats Card -->
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Loan Statistics</h5>
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistiques d'emprunt</h5>
                 </div>
                 <div class="card-body">
                     <div class="row text-center">
                         <div class="col-md-6 mb-3">
-                            <div class="card-icon text-info">
-                                <i class="fas fa-book"></i>
+                            <div class="stats-circle stats-blue">
+                                <span class="stats-number">{{ active_loans }}</span>
                             </div>
-                            <h5>Active Loans</h5>
-                            <p class="card-count">{{ active_loans }}</p>
+                            <h5 class="mt-2">Emprunts actifs</h5>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <div class="card-icon text-danger">
-                                <i class="fas fa-exclamation-circle"></i>
+                            <div class="stats-circle stats-red">
+                                <span class="stats-number">{{ overdue_loans }}</span>
                             </div>
-                            <h5>Overdue</h5>
-                            <p class="card-count">{{ overdue_loans }}</p>
+                            <h5 class="mt-2">En retard</h5>
                         </div>
                     </div>
-                    <div class="row text-center">
-                        <div class="col-12">
-                            <div class="card-icon text-success">
-                                <i class="fas fa-history"></i>
-                            </div>
-                            <h5>Total Loans</h5>
-                            <p class="card-count">{{ loans|length }}</p>
+                    <hr>
+                    <div class="stats-list">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div><i class="fas fa-history me-2 text-success"></i> Emprunts totaux</div>
+                            <div><strong>{{ loans|length }}</strong></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div><i class="fas fa-undo me-2 text-info"></i> Retours effectués</div>
+                            <div><strong>{{ loans|selectattr('returned')|list|length }}</strong></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div><i class="fas fa-calendar-check me-2 text-warning"></i> Taux de retour à temps</div>
+                            {% set on_time_returns = loans|selectattr('returned')|rejectattr('is_overdue')|list|length %}
+                            {% set returned_count = loans|selectattr('returned')|list|length %}
+                            {% if returned_count > 0 %}
+                                {% set ratio = (on_time_returns / returned_count * 100)|round %}
+                            {% else %}
+                                {% set ratio = 0 %}
+                            {% endif %}
+                            <div><strong>{{ ratio }}%</strong></div>
                         </div>
                     </div>
                 </div>
             </div>
+            
+            <!-- Reading Interests Card (if there are loans) -->
+            {% if loans %}
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-book-reader me-2"></i>Intérêts de lecture</h5>
+                </div>
+                <div class="card-body">
+                    {% set categories = {} %}
+                    {% for loan in loans %}
+                        {% if loan.book.category %}
+                            {% if loan.book.category in categories %}
+                                {% set _ = categories.update({loan.book.category: categories[loan.book.category] + 1}) %}
+                            {% else %}
+                                {% set _ = categories.update({loan.book.category: 1}) %}
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if categories %}
+                        <h6 class="text-muted mb-3">Catégories les plus empruntées</h6>
+                        <ul class="list-group list-group-flush">
+                            {% for category, count in categories.items()|sort(reverse=true, attribute='1')|slice(0, 5) %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ category }}
+                                    <span class="badge bg-primary rounded-pill">{{ count }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Aucune information sur les catégories disponible.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
         </div>
         
         <div class="col-md-8">
             <!-- Loan History Card -->
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Loan History</h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Historique des emprunts</h5>
+                        <span class="badge bg-light text-dark">{{ loans|length }} emprunts</span>
+                    </div>
                 </div>
                 <div class="card-body">
                     {% if loans %}
@@ -122,11 +200,11 @@
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Book</th>
-                                        <th>Loan Date</th>
-                                        <th>Due Date</th>
-                                        <th>Return Date</th>
-                                        <th>Status</th>
+                                        <th>Livre</th>
+                                        <th>Date d'emprunt</th>
+                                        <th>Date limite</th>
+                                        <th>Retour</th>
+                                        <th>Statut</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -134,42 +212,44 @@
                                     {% for loan in loans %}
                                         <tr class="{% if not loan.returned and loan.is_overdue() %}table-danger{% elif not loan.returned %}table-warning{% else %}table-success{% endif %}">
                                             <td>
-                                                <a href="{{ url_for('books.show', id=loan.book.id) }}">
+                                                <a href="{{ url_for('books.show', id=loan.book.id) }}" class="text-truncate d-inline-block" style="max-width: 200px;" title="{{ loan.book.title }}">
                                                     {{ loan.book.title }}
                                                 </a>
                                             </td>
-                                            <td>{{ loan.loan_date.strftime('%Y-%m-%d') }}</td>
-                                            <td>{{ loan.due_date.strftime('%Y-%m-%d') }}</td>
+                                            <td>{{ loan.loan_date.strftime('%d/%m/%Y') }}</td>
+                                            <td>{{ loan.due_date.strftime('%d/%m/%Y') }}</td>
                                             <td>
                                                 {% if loan.returned %}
-                                                    {{ loan.return_date.strftime('%Y-%m-%d') }}
+                                                    {{ loan.return_date.strftime('%d/%m/%Y') }}
                                                 {% else %}
-                                                    <span class="text-muted">Not returned</span>
+                                                    <span class="text-muted">Non retourné</span>
                                                 {% endif %}
                                             </td>
                                             <td>
                                                 {% if loan.returned %}
-                                                    <span class="badge bg-success">Returned</span>
+                                                    <span class="badge bg-success">Retourné</span>
                                                 {% elif loan.is_overdue() %}
-                                                    <span class="badge bg-danger">Overdue</span>
+                                                    <span class="badge bg-danger">En retard</span>
                                                     <span class="text-danger">
-                                                        ({{ loan.days_overdue() }} days)
+                                                        ({{ loan.days_overdue() }} jours)
                                                     </span>
                                                 {% else %}
-                                                    <span class="badge bg-warning text-dark">Active</span>
+                                                    <span class="badge bg-warning text-dark">Actif</span>
                                                 {% endif %}
                                             </td>
                                             <td>
-                                                <a href="{{ url_for('loans.show', id=loan.id) }}" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                {% if not loan.returned %}
-                                                    <form action="{{ url_for('loans.return_book', id=loan.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to return this book?')">
-                                                        <button type="submit" class="btn btn-sm btn-success btn-return">
-                                                            <i class="fas fa-undo"></i>
-                                                        </button>
-                                                    </form>
-                                                {% endif %}
+                                                <div class="btn-group" role="group">
+                                                    <a href="{{ url_for('loans.show', id=loan.id) }}" class="btn btn-sm btn-info" title="Voir détails">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    {% if not loan.returned %}
+                                                        <form action="{{ url_for('loans.return_book', id=loan.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir retourner ce livre ?')">
+                                                            <button type="submit" class="btn btn-sm btn-success btn-return" title="Retourner le livre">
+                                                                <i class="fas fa-undo"></i>
+                                                            </button>
+                                                        </form>
+                                                    {% endif %}
+                                                </div>
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -179,14 +259,14 @@
                     {% else %}
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
-                            This member has no loan history.
+                            Ce membre n'a pas encore d'historique d'emprunt.
                         </div>
                     {% endif %}
                 </div>
                 {% if loans %}
                     <div class="card-footer text-end">
                         <a href="{{ url_for('loans.index') }}?member_id={{ member.id }}" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-search me-1"></i> View All Loans
+                            <i class="fas fa-search me-1"></i> Voir tous les emprunts
                         </a>
                     </div>
                 {% endif %}
@@ -196,7 +276,10 @@
             {% if active_loans > 0 %}
                 <div class="card mt-4">
                     <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>Active Loans</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-book me-2"></i>Emprunts en cours</h5>
+                            <span class="badge bg-warning text-dark">{{ active_loans }} actif{% if active_loans > 1 %}s{% endif %}</span>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="list-group">
@@ -209,36 +292,56 @@
                                                 {% if loan.is_overdue() %}
                                                     <span class="text-danger">
                                                         <i class="fas fa-exclamation-triangle"></i>
-                                                        {{ loan.days_overdue() }} days overdue
+                                                        {{ loan.days_overdue() }} jour{% if loan.days_overdue() > 1 %}s{% endif %} de retard
                                                     </span>
                                                 {% else %}
-                                                    Due in {{ (loan.due_date - loan.loan_date.replace(microsecond=0)).days }} days
+                                                    {% set days_remaining = (loan.due_date - loan.loan_date.replace(microsecond=0)).days %}
+                                                    À rendre dans {{ days_remaining }} jour{% if days_remaining > 1 %}s{% endif %}
                                                 {% endif %}
                                             </small>
                                         </div>
-                                        <p class="mb-1">
-                                            by {{ loan.book.author }}
-                                        </p>
+                                        <div class="d-flex justify-content-between">
+                                            <p class="mb-1">
+                                                <span class="text-muted">Auteur :</span> {{ loan.book.author }}
+                                                {% if loan.book.category %}
+                                                <br><span class="text-muted">Catégorie :</span> {{ loan.book.category }}
+                                                {% endif %}
+                                            </p>
+                                            <span class="badge {% if loan.is_overdue() %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                                {{ loan.due_date.strftime('%d/%m/%Y') }}
+                                            </span>
+                                        </div>
+                                        <div class="progress mt-2 mb-1" style="height: 5px;">
+                                            {% set loan_length = (loan.due_date - loan.loan_date).days %}
+                                            {% set elapsed = (loan.loan_date - loan.loan_date).days %}
+                                            {% if loan.is_overdue() %}
+                                                <div class="progress-bar bg-danger" style="width: 100%"></div>
+                                            {% else %}
+                                                {% set days_passed = (loan.due_date - loan.loan_date).days - (loan.due_date - loan.loan_date.replace(microsecond=0)).days %}
+                                                {% set percentage = (days_passed / (loan.due_date - loan.loan_date).days * 100)|int %}
+                                                <div class="progress-bar {% if percentage > 75 %}bg-warning{% else %}bg-success{% endif %}" style="width: {{ percentage }}%"></div>
+                                            {% endif %}
+                                        </div>
                                         <small>
-                                            Borrowed on {{ loan.loan_date.strftime('%Y-%m-%d') }},
-                                            due on {{ loan.due_date.strftime('%Y-%m-%d') }}
+                                            Emprunté le {{ loan.loan_date.strftime('%d/%m/%Y') }},
+                                            à rendre le {{ loan.due_date.strftime('%d/%m/%Y') }}
                                         </small>
                                         
                                         {% if loan.is_overdue() %}
                                             <div class="mt-2">
                                                 <div class="alert alert-danger mb-0">
-                                                    <strong>Current fine: ${{ "%.2f"|format(loan.calculate_fine()) }}</strong>
+                                                    <strong>Amende actuelle : {{ "%.2f"|format(loan.calculate_fine()) }} €</strong>
                                                 </div>
                                             </div>
                                         {% endif %}
                                         
-                                        <div class="mt-2">
-                                            <a href="{{ url_for('loans.show', id=loan.id) }}" class="btn btn-sm btn-info">
-                                                <i class="fas fa-eye me-1"></i> Details
+                                        <div class="mt-3 d-flex justify-content-end">
+                                            <a href="{{ url_for('loans.show', id=loan.id) }}" class="btn btn-sm btn-info me-2">
+                                                <i class="fas fa-eye me-1"></i> Détails
                                             </a>
-                                            <form action="{{ url_for('loans.return_book', id=loan.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to return this book?')">
+                                            <form action="{{ url_for('loans.return_book', id=loan.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir retourner ce livre ?')">
                                                 <button type="submit" class="btn btn-sm btn-success btn-return">
-                                                    <i class="fas fa-undo me-1"></i> Return Book
+                                                    <i class="fas fa-undo me-1"></i> Retourner
                                                 </button>
                                             </form>
                                         </div>
@@ -256,7 +359,30 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // We could add member-specific JavaScript here if needed
+        // Initialiser les tooltips de Bootstrap
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Appliquer une animation d'entrée
+        const memberCard = document.querySelector('.member-profile');
+        if (memberCard) {
+            memberCard.style.opacity = '0';
+            memberCard.style.transform = 'translateY(20px)';
+            memberCard.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(function() {
+                memberCard.style.opacity = '1';
+                memberCard.style.transform = 'translateY(0)';
+            }, 100);
+        }
+        
+        // Mettre en évidence les emprunts en retard
+        const overdueItems = document.querySelectorAll('.list-group-item-danger');
+        overdueItems.forEach(function(item) {
+            item.classList.add('overdue-warning');
+        });
     });
 </script>
 {% endblock %}
