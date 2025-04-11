@@ -3,7 +3,7 @@ import logging
 
 from flask import Flask, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, login_required, current_user
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -38,6 +38,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'auth.login'  # Définir la vue de connexion
 login_manager.login_message = "Veuillez vous connecter pour accéder à cette page."
 login_manager.login_message_category = "info"
+login_manager.session_protection = "strong"
 
 # Import models and create tables
 with app.app_context():
@@ -46,6 +47,21 @@ with app.app_context():
 
     # Create database tables
     db.create_all()
+    
+    # Créer un utilisateur administrateur par défaut si aucun n'existe
+    from models import User
+    admin_user = User.query.filter_by(role='admin').first()
+    if not admin_user:
+        admin = User(
+            username='admin',
+            email='admin@bibliotheque.fr',
+            role='admin',
+            is_active=True
+        )
+        admin.set_password('admin123')  # Mot de passe par défaut, à changer après la première connexion
+        db.session.add(admin)
+        db.session.commit()
+        app.logger.info("Utilisateur administrateur par défaut créé")
     
     app.logger.info("Database tables created")
     
@@ -72,6 +88,7 @@ app.register_blueprint(auth_bp, url_prefix='/auth')
 
 # Home route
 @app.route('/')
+@login_required
 def home():
     # Get count data for dashboard
     book_count = models.Book.query.count()
