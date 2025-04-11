@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+
+{% block title %}Loan Details - Library Management System{% endblock %}
+
+{% block page_title %}Loan Details{% endblock %}
+
+{% block page_actions %}
+    <div class="btn-group" role="group">
+        <a href="{{ url_for('loans.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Loans
+        </a>
+        {% if not loan.returned %}
+            <form action="{{ url_for('loans.return_book', id=loan.id) }}" method="POST" class="d-inline">
+                <button type="submit" class="btn btn-success btn-return">
+                    <i class="fas fa-undo me-1"></i> Return Book
+                </button>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Loan Details Card -->
+            <div class="card mb-4">
+                <div class="card-header {% if not loan.returned and loan.is_overdue() %}bg-danger{% elif not loan.returned %}bg-warning text-dark{% else %}bg-success{% endif %} text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-handshake me-2"></i>
+                        {% if loan.returned %}
+                            Completed Loan
+                        {% elif loan.is_overdue() %}
+                            Overdue Loan
+                        {% else %}
+                            Active Loan
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Book Information</h5>
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ loan.book.title }}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">by {{ loan.book.author }}</h6>
+                                    
+                                    {% if loan.book.category %}
+                                        <p class="card-text">
+                                            <span class="badge bg-info">{{ loan.book.category }}</span>
+                                        </p>
+                                    {% endif %}
+                                    
+                                    <a href="{{ url_for('books.show', id=loan.book.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-book me-1"></i> View Book Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Member Information</h5>
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ loan.member.full_name() }}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">{{ loan.member.email }}</h6>
+                                    
+                                    {% if loan.member.active %}
+                                        <p class="card-text">
+                                            <span class="badge bg-success">Active Member</span>
+                                        </p>
+                                    {% else %}
+                                        <p class="card-text">
+                                            <span class="badge bg-danger">Inactive Member</span>
+                                        </p>
+                                    {% endif %}
+                                    
+                                    <a href="{{ url_for('members.show', id=loan.member.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-user me-1"></i> View Member Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h5>Loan Timeline</h5>
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-calendar-plus me-2"></i>
+                                <strong>Loan Date:</strong>
+                            </span>
+                            <span>{{ loan.loan_date.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-calendar-times me-2"></i>
+                                <strong>Due Date:</strong>
+                            </span>
+                            <span class="{% if not loan.returned and loan.is_overdue() %}text-danger{% endif %}">
+                                {{ loan.due_date.strftime('%Y-%m-%d %H:%M') }}
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-hourglass-half me-2"></i>
+                                <strong>Loan Duration:</strong>
+                            </span>
+                            <span>{{ (loan.due_date - loan.loan_date).days }} days</span>
+                        </li>
+                        {% if loan.returned %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>
+                                    <i class="fas fa-calendar-check me-2"></i>
+                                    <strong>Return Date:</strong>
+                                </span>
+                                <span>{{ loan.return_date.strftime('%Y-%m-%d %H:%M') }}</span>
+                            </li>
+                            {% set days_borrowed = (loan.return_date - loan.loan_date).days %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>
+                                    <i class="fas fa-clock me-2"></i>
+                                    <strong>Total Borrowed Time:</strong>
+                                </span>
+                                <span>{{ days_borrowed }} days</span>
+                            </li>
+                        {% else %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>
+                                    <i class="fas fa-clock me-2"></i>
+                                    <strong>Current Status:</strong>
+                                </span>
+                                {% if loan.is_overdue() %}
+                                    <span class="text-danger">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Overdue by {{ loan.days_overdue() }} days
+                                    </span>
+                                {% else %}
+                                    <span class="text-warning">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        Active, due in {{ (loan.due_date - loan.loan_date.replace(microsecond=0)).days }} days
+                                    </span>
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    </ul>
+                    
+                    {% if loan.notes %}
+                        <h5>Notes</h5>
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <p class="card-text">{{ loan.notes }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <div>
+                        <span class="text-muted">Created on {{ loan.created_at.strftime('%Y-%m-%d') }}</span>
+                    </div>
+                    <div>
+                        {% if not loan.returned %}
+                            <form action="{{ url_for('loans.return_book', id=loan.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-success btn-return">
+                                    <i class="fas fa-undo me-1"></i> Return Book
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Status and Fines Card -->
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Status & Fines</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Current Status</h5>
+                        <div class="p-3 rounded text-center {% if not loan.returned and loan.is_overdue() %}bg-danger text-white{% elif not loan.returned %}bg-warning{% else %}bg-success text-white{% endif %}">
+                            <h3 class="mb-0">
+                                {% if loan.returned %}
+                                    <i class="fas fa-check-circle me-2"></i>RETURNED
+                                {% elif loan.is_overdue() %}
+                                    <i class="fas fa-exclamation-triangle me-2"></i>OVERDUE
+                                {% else %}
+                                    <i class="fas fa-clock me-2"></i>ACTIVE
+                                {% endif %}
+                            </h3>
+                        </div>
+                    </div>
+                    
+                    {% if loan.is_overdue() or (loan.returned and loan.return_date > loan.due_date) %}
+                        <div class="mb-4">
+                            <h5>Fine Calculation</h5>
+                            <div class="card border-danger">
+                                <div class="card-body">
+                                    <h3 class="text-danger">${{ "%.2f"|format(loan.calculate_fine()) }}</h3>
+                                    
+                                    <ul class="list-group list-group-flush mt-3">
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Days Overdue:</span>
+                                            <strong>{{ loan.days_overdue() }}</strong>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Daily Rate:</span>
+                                            <strong>$0.50</strong>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Total Fine:</span>
+                                            <strong>${{ "%.2f"|format(loan.calculate_fine()) }}</strong>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="card-footer bg-danger text-white">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    Please pay the fine at the library desk
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mb-4">
+                        <h5>Actions</h5>
+                        <div class="d-grid gap-2">
+                            {% if not loan.returned %}
+                                <form action="{{ url_for('loans.return_book', id=loan.id) }}" method="POST">
+                                    <button type="submit" class="btn btn-success w-100 btn-return">
+                                        <i class="fas fa-undo me-1"></i> Return Book
+                                    </button>
+                                </form>
+                            {% endif %}
+                            
+                            <a href="{{ url_for('books.show', id=loan.book.id) }}" class="btn btn-outline-primary">
+                                <i class="fas fa-book me-1"></i> View Book Details
+                            </a>
+                            
+                            <a href="{{ url_for('members.show', id=loan.member.id) }}" class="btn btn-outline-success">
+                                <i class="fas fa-user me-1"></i> View Member Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // We could add loan-specific JavaScript here if needed
+    });
+</script>
+{% endblock %}

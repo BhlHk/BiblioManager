@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Book - {{ book.title }} - Library Management System{% endblock %}
+
+{% block page_title %}Edit Book{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ url_for('books.show', id=book.id) }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Back to Book Details
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Book Information</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('books.edit', id=book.id) }}" method="POST">
+                        <div class="mb-3">
+                            <label for="title" class="form-label form-required">Title</label>
+                            <input type="text" class="form-control" id="title" name="title" required
+                                   value="{{ book.title }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="author" class="form-label form-required">Author</label>
+                            <input type="text" class="form-control" id="author" name="author" required
+                                   value="{{ book.author }}">
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="isbn" class="form-label">ISBN</label>
+                                <input type="text" class="form-control" id="isbn" name="isbn"
+                                       value="{{ book.isbn or '' }}">
+                                <div class="form-text">Leave empty if unknown</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="category" class="form-label">Category</label>
+                                <input type="text" class="form-control" id="category" name="category"
+                                       value="{{ book.category or '' }}">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="publication_year" class="form-label">Publication Year</label>
+                            <input type="number" class="form-control" id="publication_year" name="publication_year"
+                                   value="{{ book.publication_year or '' }}" min="1000" max="{{ current_year }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4">{{ book.description or '' }}</textarea>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('books.show', id=book.id) }}" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save me-1"></i> Update Book
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set max year to current year
+        const currentYearElement = document.getElementById('publication_year');
+        if (currentYearElement) {
+            currentYearElement.max = new Date().getFullYear();
+        }
+        
+        // Basic form validation
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(event) {
+            const title = document.getElementById('title').value.trim();
+            const author = document.getElementById('author').value.trim();
+            
+            if (!title || !author) {
+                event.preventDefault();
+                alert('Title and author are required fields!');
+            }
+        });
+    });
+</script>
+{% endblock %}

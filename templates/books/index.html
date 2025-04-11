@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Books - Library Management System{% endblock %}
+
+{% block page_title %}Book Management{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ url_for('books.create') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> Add New Book
+    </a>
+{% endblock %}
+
+{% block content %}
+    <!-- Search and Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="{{ url_for('books.index') }}" method="GET" class="row g-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" id="search-input" name="search" 
+                               placeholder="Search by title, author, or ISBN..." value="{{ search_term }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="category-filter" name="category">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>
+                                {{ category }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Books Table -->
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-books me-2"></i>Books List</h5>
+                <span class="badge bg-primary">{{ books|length }} books</span>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if books %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Category</th>
+                                <th>ISBN</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in books %}
+                                <tr>
+                                    <td>{{ book.title }}</td>
+                                    <td>{{ book.author }}</td>
+                                    <td>{{ book.category or 'N/A' }}</td>
+                                    <td>{{ book.isbn or 'N/A' }}</td>
+                                    <td>
+                                        {% if book.available %}
+                                            <span class="badge bg-success">Available</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">On Loan</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('books.show', id=book.id) }}" class="btn btn-sm btn-info" 
+                                               data-bs-toggle="tooltip" data-bs-title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ url_for('books.edit', id=book.id) }}" class="btn btn-sm btn-warning" 
+                                               data-bs-toggle="tooltip" data-bs-title="Edit Book">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if book.available %}
+                                                <a href="{{ url_for('loans.create') }}?book_id={{ book.id }}" class="btn btn-sm btn-success" 
+                                                   data-bs-toggle="tooltip" data-bs-title="Loan This Book">
+                                                    <i class="fas fa-handshake"></i>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No books found. {% if search_term or selected_category %}Try changing your search criteria.{% else %}Add your first book to get started!{% endif %}
+                </div>
+                {% if search_term or selected_category %}
+                    <a href="{{ url_for('books.index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i> Clear Filters
+                    </a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Additional book list specific JavaScript can be added here
+    });
+</script>
+{% endblock %}

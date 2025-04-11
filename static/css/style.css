@@ -1,0 +1,157 @@
+/* Custom styles for the Library Management System */
+
+/* Global styles */
+body {
+    padding-top: 56px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-wrapper {
+    flex: 1;
+}
+
+footer {
+    margin-top: auto;
+    padding: 20px 0;
+}
+
+/* Cards and containers */
+.card {
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.jumbotron {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 0.5rem;
+}
+
+/* Book availability indicators */
+.badge-available {
+    background-color: var(--bs-success);
+}
+
+.badge-unavailable {
+    background-color: var(--bs-danger);
+}
+
+/* Loan status indicators */
+.loan-active {
+    border-left: 4px solid var(--bs-primary);
+}
+
+.loan-returned {
+    border-left: 4px solid var(--bs-success);
+}
+
+.loan-overdue {
+    border-left: 4px solid var(--bs-danger);
+}
+
+/* Tables */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table th {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+}
+
+/* Forms */
+.form-required:after {
+    content: "*";
+    color: var(--bs-danger);
+    margin-left: 3px;
+}
+
+/* Search box */
+.search-box {
+    margin-bottom: 1.5rem;
+}
+
+/* Dashboard cards */
+.dashboard-card {
+    text-align: center;
+    padding: 1.5rem;
+    transition: transform 0.3s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+.dashboard-card .card-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.dashboard-card .card-count {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* Member profiles */
+.member-profile {
+    padding: 1.5rem;
+}
+
+.member-profile .member-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.member-profile .member-info {
+    margin-bottom: 1rem;
+}
+
+/* Book details */
+.book-details {
+    padding: 1.5rem;
+}
+
+.book-details .book-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.book-details .book-author {
+    font-style: italic;
+    margin-bottom: 1rem;
+}
+
+/* Overdue indicator warning effect */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.overdue-warning {
+    animation: pulse 2s infinite;
+    color: var(--bs-danger);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .dashboard-card {
+        margin-bottom: 1rem;
+    }
+    
+    .jumbotron {
+        padding: 1.5rem;
+    }
+}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Add New Member - Library Management System{% endblock %}
+
+{% block page_title %}Add New Member{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ url_for('members.index') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Back to Members
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Member Information</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('members.create') }}" method="POST">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label form-required">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required
+                                       placeholder="Enter first name">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label form-required">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required
+                                       placeholder="Enter last name">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label form-required">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required
+                                   placeholder="Enter email address">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone"
+                                   placeholder="Enter phone number">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea class="form-control" id="address" name="address" rows="3"
+                                      placeholder="Enter physical address"></textarea>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('members.index') }}" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-1"></i> Register Member
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Basic form validation
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(event) {
+            const firstName = document.getElementById('first_name').value.trim();
+            const lastName = document.getElementById('last_name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            
+            if (!firstName || !lastName || !email) {
+                event.preventDefault();
+                alert('First name, last name, and email are required fields!');
+                return;
+            }
+            
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                event.preventDefault();
+                alert('Please enter a valid email address!');
+                return;
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Library Management System{% endblock %}</title>
+    
+    <!-- Bootstrap CSS from Replit CDN -->
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('home') }}">
+                <i class="fas fa-book-open me-2"></i>Library Management
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                    data-bs-target="#navbarNav" aria-controls="navbarNav" 
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" 
+                           href="{{ url_for('home') }}">
+                           <i class="fas fa-home me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if '/books' in request.path %}active{% endif %}" 
+                           href="{{ url_for('books.index') }}">
+                           <i class="fas fa-book me-1"></i> Books
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if '/members' in request.path %}active{% endif %}" 
+                           href="{{ url_for('members.index') }}">
+                           <i class="fas fa-users me-1"></i> Members
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if '/loans' in request.path %}active{% endif %}" 
+                           href="{{ url_for('loans.index') }}">
+                           <i class="fas fa-handshake me-1"></i> Loans
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" 
+                                id="toolsDropdown" data-bs-toggle="dropdown" 
+                                aria-expanded="false">
+                            <i class="fas fa-tools me-1"></i> Tools
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="toolsDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('loans.overdue_check') }}">
+                                    <i class="fas fa-exclamation-circle me-1 text-warning"></i> Check Overdue
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('loans.upcoming_due') }}">
+                                    <i class="fas fa-bell me-1 text-info"></i> Send Due Reminders
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('api.get_statistics') }}">
+                                    <i class="fas fa-chart-bar me-1 text-success"></i> API Statistics
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main content container -->
+    <div class="container mt-4 content-wrapper">
+        <!-- Flash messages -->
+        <div class="notification-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <!-- Page header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="page-title">{% block page_title %}Library Management System{% endblock %}</h1>
+                    <div class="page-actions">
+                        {% block page_actions %}{% endblock %}
+                    </div>
+                </div>
+                <hr>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light mt-5">
+        <div class="container py-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Library Management System</h5>
+                    <p class="text-muted">A complete solution for managing your library's books, members, and loans.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('home') }}" class="text-decoration-none">Home</a></li>
+                        <li><a href="{{ url_for('books.index') }}" class="text-decoration-none">Books</a></li>
+                        <li><a href="{{ url_for('members.index') }}" class="text-decoration-none">Members</a></li>
+                        <li><a href="{{ url_for('loans.index') }}" class="text-decoration-none">Loans</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>API</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('api.get_books') }}" class="text-decoration-none">Books API</a></li>
+                        <li><a href="{{ url_for('api.get_members') }}" class="text-decoration-none">Members API</a></li>
+                        <li><a href="{{ url_for('api.get_loans') }}" class="text-decoration-none">Loans API</a></li>
+                        <li><a href="{{ url_for('api.get_statistics') }}" class="text-decoration-none">Statistics API</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p>&copy; <span id="current-year">2023</span> Library Management System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle (with Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- Update current year in footer -->
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    
+    <!-- Page-specific scripts -->
+    {% block scripts %}{% endblock %}
+</body>
+</html>
