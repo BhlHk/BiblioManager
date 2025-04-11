@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from app import db
-from models import Member, Loan
-from sqlalchemy import or_
+from models import Member, Loan, Book
+from sqlalchemy import or_, func, desc
+from datetime import datetime, timedelta
 
 member_bp = Blueprint('members', __name__, url_prefix='/members')
 
@@ -115,6 +116,85 @@ def edit(id):
         return redirect(url_for('members.show', id=member.id))
     
     return render_template('members/edit.html', member=member)
+
+@member_bp.route('/dashboard')
+def dashboard():
+    """Display a dashboard with member statistics."""
+    # Get basic member stats
+    total_members = Member.query.count()
+    active_members = Member.query.filter_by(active=True).count()
+    
+    # Members with most active loans
+    top_borrowers = db.session.query(
+        Member, func.count(Loan.id).label('loan_count')
+    ).join(Loan).filter(
+        Loan.returned == False
+    ).group_by(
+        Member
+    ).order_by(
+        desc('loan_count')
+    ).limit(5).all()
+    
+    # Members with overdue books
+    members_with_overdue = db.session.query(
+        Member, func.count(Loan.id).label('overdue_count')
+    ).join(Loan).filter(
+        Loan.returned == False, 
+        Loan.due_date < datetime.utcnow()
+    ).group_by(
+        Member
+    ).order_by(
+        desc('overdue_count')
+    ).limit(5).all()
+    
+    # Recent registrations
+    recent_members = Member.query.order_by(Member.registration_date.desc()).limit(10).all()
+    
+    # Popular book categories among members (based on loans)
+    popular_categories = db.session.query(
+        Book.category, func.count(Loan.id).label('loan_count')
+    ).join(Loan, Loan.book_id == Book.id).group_by(
+        Book.category
+    ).filter(
+        Book.category.isnot(None)
+    ).order_by(
+        desc('loan_count')
+    ).limit(5).all()
+    
+    # Member activity over time (last 6 months)
+    today = datetime.utcnow()
+    six_months_ago = today - timedelta(days=180)
+    monthly_registrations = db.session.query(
+        func.date_trunc('month', Member.registration_date).label('month'),
+        func.count(Member.id).label('count')
+    ).filter(
+        Member.registration_date >= six_months_ago
+    ).group_by(
+        'month'
+    ).order_by(
+        'month'
+    ).all()
+    
+    # Format dates for chart
+    months = []
+    registration_counts = []
+    for month, count in monthly_registrations:
+        if month:
+            months.append(month.strftime('%b %Y'))
+            registration_counts.append(count)
+    
+    return render_template(
+        'members/dashboard.html',
+        total_members=total_members,
+        active_members=active_members,
+        inactive_members=total_members - active_members,
+        top_borrowers=top_borrowers,
+        members_with_overdue=members_with_overdue,
+        recent_members=recent_members,
+        popular_categories=popular_categories,
+        months=months,
+        registration_counts=registration_counts
+    )
 
 @member_bp.route('/<int:id>/delete', methods=['POST'])
 def delete(id):

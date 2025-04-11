@@ -32,23 +32,72 @@
                            <i class="fas fa-home me-1"></i> Home
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if '/books' in request.path %}active{% endif %}" 
-                           href="{{ url_for('books.index') }}">
-                           <i class="fas fa-book me-1"></i> Books
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if '/books' in request.path %}active{% endif %}" 
+                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                           <i class="fas fa-book me-1"></i> Livres
                         </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('books.index') }}">
+                                    <i class="fas fa-list me-1"></i> Catalogue
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('books.create') }}">
+                                    <i class="fas fa-plus me-1"></i> Ajouter un livre
+                                </a>
+                            </li>
+                        </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if '/members' in request.path %}active{% endif %}" 
-                           href="{{ url_for('members.index') }}">
-                           <i class="fas fa-users me-1"></i> Members
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if '/members' in request.path %}active{% endif %}" 
+                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                           <i class="fas fa-users me-1"></i> Membres
                         </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('members.index') }}">
+                                    <i class="fas fa-list me-1"></i> Liste des membres
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('members.dashboard') }}">
+                                    <i class="fas fa-chart-bar me-1"></i> Tableau de bord
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('members.create') }}">
+                                    <i class="fas fa-user-plus me-1"></i> Ajouter un membre
+                                </a>
+                            </li>
+                        </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if '/loans' in request.path %}active{% endif %}" 
-                           href="{{ url_for('loans.index') }}">
-                           <i class="fas fa-handshake me-1"></i> Loans
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if '/loans' in request.path %}active{% endif %}" 
+                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                           <i class="fas fa-handshake me-1"></i> Emprunts
                         </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('loans.index') }}">
+                                    <i class="fas fa-list me-1"></i> Liste des emprunts
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('loans.index') }}?status=overdue">
+                                    <i class="fas fa-exclamation-circle me-1 text-danger"></i> Retards
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('loans.create') }}">
+                                    <i class="fas fa-plus me-1"></i> Nouvel emprunt
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
                 <div class="d-flex">
