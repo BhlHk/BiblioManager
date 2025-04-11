@@ -46,11 +46,13 @@ from routes.book_routes import book_bp
 from routes.member_routes import member_bp
 from routes.loan_routes import loan_bp
 from routes.api_routes import api_bp
+from routes.admin_routes import admin
 
 app.register_blueprint(book_bp)
 app.register_blueprint(member_bp)
 app.register_blueprint(loan_bp)
 app.register_blueprint(api_bp, url_prefix='/api')
+app.register_blueprint(admin, url_prefix='/admin')
 
 # Home route
 @app.route('/')

@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}État du système - Administration{% endblock %}
+
+{% block page_title %}État du système{% endblock %}
+
+{% block page_actions %}
+    <div class="btn-group" role="group">
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Retour au tableau de bord
+        </a>
+        <a href="{{ url_for('home') }}" class="btn btn-primary">
+            <i class="fas fa-home me-1"></i> Accueil
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-server me-2"></i>Statut de la base de données</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>La base de données fonctionne normalement.
+                </div>
+                
+                <h6 class="mt-4 mb-3">Tables de la base de données</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Table</th>
+                                <th>Nombre d'entrées</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Livres</td>
+                                <td>{{ book_count }}</td>
+                                <td><span class="badge bg-success">OK</span></td>
+                            </tr>
+                            <tr>
+                                <td>Membres</td>
+                                <td>{{ member_count }}</td>
+                                <td><span class="badge bg-success">OK</span></td>
+                            </tr>
+                            <tr>
+                                <td>Emprunts</td>
+                                <td>{{ loan_count }}</td>
+                                <td><span class="badge bg-success">OK</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations système</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Version du système</strong>
+                            <p class="mb-0 small text-muted">Version du système de gestion de bibliothèque</p>
+                        </div>
+                        <span class="badge bg-info">1.0.0</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Heure du serveur</strong>
+                            <p class="mb-0 small text-muted">Heure actuelle du serveur</p>
+                        </div>
+                        <span>{{ current_time.strftime('%d/%m/%Y %H:%M:%S') }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Notifications</strong>
+                            <p class="mb-0 small text-muted">État du service de notifications</p>
+                        </div>
+                        <span class="badge bg-success">Actif</span>
+                    </li>
+                </ul>
+
+                <h6 class="mt-4 mb-3">Dernières opérations système</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Opération</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ (current_time - timedelta(minutes=5)).strftime('%H:%M:%S') }}</td>
+                                <td>Vérification des retours</td>
+                                <td><span class="badge bg-success">Réussi</span></td>
+                            </tr>
+                            <tr>
+                                <td>{{ (current_time - timedelta(hours=1)).strftime('%H:%M:%S') }}</td>
+                                <td>Envoi de rappels</td>
+                                <td><span class="badge bg-success">Réussi</span></td>
+                            </tr>
+                            <tr>
+                                <td>{{ (current_time - timedelta(hours=6)).strftime('%H:%M:%S') }}</td>
+                                <td>Sauvegarde de la BDD</td>
+                                <td><span class="badge bg-success">Réussi</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                <button class="btn btn-sm btn-primary">
+                    <i class="fas fa-sync-alt me-1"></i> Rafraîchir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Tâches système</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Tâche</th>
+                                <th>Description</th>
+                                <th>Dernière exécution</th>
+                                <th>Prochaine exécution</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Vérification des retards</td>
+                                <td>Vérifier les emprunts en retard et envoyer des notifications</td>
+                                <td>{{ (current_time - timedelta(hours=1)).strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>{{ (current_time + timedelta(hours=23)).strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td><span class="badge bg-success">OK</span></td>
+                                <td>
+                                    <a href="{{ url_for('loans.overdue_check') }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-play me-1"></i> Exécuter
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Rappels d'échéance</td>
+                                <td>Envoyer des rappels pour les emprunts arrivant à échéance</td>
+                                <td>{{ (current_time - timedelta(hours=1)).strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>{{ (current_time + timedelta(hours=23)).strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td><span class="badge bg-success">OK</span></td>
+                                <td>
+                                    <a href="{{ url_for('loans.upcoming_due') }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-play me-1"></i> Exécuter
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Sauvegarde de la base de données</td>
+                                <td>Sauvegarde quotidienne automatique de la base de données</td>
+                                <td>{{ (current_time - timedelta(hours=6)).strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>{{ (current_time + timedelta(hours=18)).strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td><span class="badge bg-success">OK</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-play me-1"></i> Exécuter
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

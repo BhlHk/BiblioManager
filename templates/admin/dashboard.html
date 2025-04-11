@@ -1,0 +1,428 @@
+{% extends 'base.html' %}
+
+{% block title %}Administration - Système de gestion de bibliothèque{% endblock %}
+
+{% block page_title %}Tableau de bord d'administration{% endblock %}
+
+{% block page_actions %}
+    <div class="btn-group" role="group">
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">
+            <i class="fas fa-home me-1"></i> Accueil
+        </a>
+        <a href="{{ url_for('members.index') }}" class="btn btn-info">
+            <i class="fas fa-users me-1"></i> Membres
+        </a>
+        <a href="{{ url_for('books.index') }}" class="btn btn-success">
+            <i class="fas fa-book me-1"></i> Livres
+        </a>
+        <a href="{{ url_for('loans.index') }}" class="btn btn-warning">
+            <i class="fas fa-handshake me-1"></i> Emprunts
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <!-- Overview Cards -->
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card h-100 border-primary dashboard-card">
+            <div class="card-body text-center">
+                <div class="card-icon text-primary">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="card-count">{{ total_books }}</div>
+                <h5 class="card-title">Livres</h5>
+                <p class="card-text small text-muted">Nombre total de livres dans la bibliothèque</p>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="{{ url_for('books.index') }}" class="btn btn-sm btn-outline-primary w-100">Gérer les livres</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card h-100 border-success dashboard-card">
+            <div class="card-body text-center">
+                <div class="card-icon text-success">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="card-count">{{ total_members }}</div>
+                <h5 class="card-title">Membres</h5>
+                <p class="card-text small text-muted">Nombre total de membres inscrits</p>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="{{ url_for('members.index') }}" class="btn btn-sm btn-outline-success w-100">Gérer les membres</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card h-100 border-warning dashboard-card">
+            <div class="card-body text-center">
+                <div class="card-icon text-warning">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <div class="card-count">{{ total_active_loans }}</div>
+                <h5 class="card-title">Emprunts actifs</h5>
+                <p class="card-text small text-muted">Livres actuellement empruntés</p>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="{{ url_for('loans.index') }}" class="btn btn-sm btn-outline-warning w-100">Gérer les emprunts</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card h-100 border-danger dashboard-card">
+            <div class="card-body text-center">
+                <div class="card-icon text-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="card-count">{{ total_overdue_loans }}</div>
+                <h5 class="card-title">Retards</h5>
+                <p class="card-text small text-muted">Emprunts en retard de retour</p>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="{{ url_for('loans.index') }}?status=overdue" class="btn btn-sm btn-outline-danger w-100">Voir les retards</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Quick Actions Card -->
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Actions rapides</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <a href="{{ url_for('books.create') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1"><i class="fas fa-plus-circle text-success me-2"></i>Ajouter un livre</h6>
+                            <small><i class="fas fa-chevron-right"></i></small>
+                        </div>
+                        <small class="text-muted">Enregistrer un nouveau livre dans le catalogue</small>
+                    </a>
+                    <a href="{{ url_for('members.create') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1"><i class="fas fa-user-plus text-primary me-2"></i>Ajouter un membre</h6>
+                            <small><i class="fas fa-chevron-right"></i></small>
+                        </div>
+                        <small class="text-muted">Enregistrer un nouveau membre dans le système</small>
+                    </a>
+                    <a href="{{ url_for('loans.create') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1"><i class="fas fa-exchange-alt text-warning me-2"></i>Créer un emprunt</h6>
+                            <small><i class="fas fa-chevron-right"></i></small>
+                        </div>
+                        <small class="text-muted">Enregistrer un nouvel emprunt de livre</small>
+                    </a>
+                    <a href="{{ url_for('loans.overdue_check') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1"><i class="fas fa-exclamation-circle text-danger me-2"></i>Vérifier les retards</h6>
+                            <small><i class="fas fa-chevron-right"></i></small>
+                        </div>
+                        <small class="text-muted">Envoyer des notifications pour les emprunts en retard</small>
+                    </a>
+                    <a href="{{ url_for('loans.upcoming_due') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1"><i class="fas fa-bell text-info me-2"></i>Envoyer des rappels</h6>
+                            <small><i class="fas fa-chevron-right"></i></small>
+                        </div>
+                        <small class="text-muted">Envoyer des rappels pour les emprunts à échéance proche</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-lg-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Activité récente</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_loans %}
+                    <div class="timeline">
+                        {% for loan in recent_loans %}
+                            <div class="timeline-item">
+                                <div class="timeline-marker {% if loan.returned %}bg-success{% elif loan.is_overdue() %}bg-danger{% else %}bg-warning{% endif %}"></div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-0">
+                                        {% if loan.returned %}
+                                            Retour : {{ loan.book.title }}
+                                        {% else %}
+                                            Emprunt : {{ loan.book.title }}
+                                        {% endif %}
+                                    </h6>
+                                    <p class="mb-0">
+                                        <small class="text-muted">
+                                            Par <a href="{{ url_for('members.show', id=loan.member.id) }}">{{ loan.member.full_name() }}</a> 
+                                            {% if loan.returned %}
+                                                le {{ loan.return_date.strftime('%d/%m/%Y') }}
+                                            {% else %}
+                                                le {{ loan.loan_date.strftime('%d/%m/%Y') }}
+                                            {% endif %}
+                                        </small>
+                                    </p>
+                                    <p class="mb-0">
+                                        <small class="{% if loan.is_overdue() %}text-danger{% elif not loan.returned %}text-warning{% else %}text-success{% endif %}">
+                                            {% if loan.returned %}
+                                                Retourné le {{ loan.return_date.strftime('%d/%m/%Y') }}
+                                            {% elif loan.is_overdue() %}
+                                                En retard de {{ loan.days_overdue() }} jour(s) (dû le {{ loan.due_date.strftime('%d/%m/%Y') }})
+                                            {% else %}
+                                                À retourner avant le {{ loan.due_date.strftime('%d/%m/%Y') }}
+                                            {% endif %}
+                                        </small>
+                                    </p>
+                                </div>
+                                <div class="timeline-actions">
+                                    <a href="{{ url_for('loans.show', id=loan.id) }}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>Aucune activité récente à afficher.
+                    </div>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-transparent border-0 text-end">
+                <a href="{{ url_for('loans.index') }}" class="btn btn-sm btn-outline-primary">Voir toute l'activité</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Library Statistics Card -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Statistiques de la bibliothèque</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <canvas id="booksStatusChart" height="200"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <canvas id="loansStatusChart" height="200"></canvas>
+                    </div>
+                </div>
+                <hr>
+                <div class="stats-info">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>Total des livres</div>
+                        <strong>{{ total_books }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>Livres disponibles</div>
+                        <strong>{{ available_books }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>Livres empruntés</div>
+                        <strong>{{ total_active_loans }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>Taux d'utilisation</div>
+                        <strong>{{ usage_rate }}%</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>Taux de retard</div>
+                        <strong>{{ overdue_rate }}%</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0 text-end">
+                <a href="{{ url_for('api.get_statistics') }}" class="btn btn-sm btn-outline-primary">Statistiques détaillées</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popular Categories -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Catégories populaires</h5>
+            </div>
+            <div class="card-body">
+                {% if popular_categories %}
+                    <canvas id="categoriesChart" height="250"></canvas>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Catégorie</th>
+                                    <th>Livres</th>
+                                    <th>Emprunts</th>
+                                    <th>Popularité</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for category, count, loan_count in popular_categories %}
+                                    <tr>
+                                        <td>{{ category or "Non catégorisé" }}</td>
+                                        <td>{{ count }}</td>
+                                        <td>{{ loan_count }}</td>
+                                        <td>
+                                            <div class="progress" style="height: 6px;">
+                                                {% set popularity = (loan_count / count * 100)|int if count > 0 else 0 %}
+                                                <div class="progress-bar bg-success" role="progressbar" style="width: {{ popularity }}%"
+                                                    aria-valuenow="{{ popularity }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>Aucune donnée disponible sur les catégories.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialisation des tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+        
+        // Books Status Chart
+        var booksCtx = document.getElementById('booksStatusChart').getContext('2d');
+        var booksStatusChart = new Chart(booksCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Disponibles', 'Empruntés'],
+                datasets: [{
+                    data: [{{ available_books }}, {{ total_active_loans }}],
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.7)', // vert pour disponible
+                        'rgba(255, 193, 7, 0.7)'  // jaune pour emprunté
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Statut des livres',
+                        font: {
+                            size: 14
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Loans Status Chart
+        var loansCtx = document.getElementById('loansStatusChart').getContext('2d');
+        var loansStatusChart = new Chart(loansCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Dans les délais', 'En retard'],
+                datasets: [{
+                    data: [{{ total_active_loans - total_overdue_loans }}, {{ total_overdue_loans }}],
+                    backgroundColor: [
+                        'rgba(0, 123, 255, 0.7)', // bleu pour dans les délais
+                        'rgba(220, 53, 69, 0.7)'  // rouge pour en retard
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Statut des emprunts',
+                        font: {
+                            size: 14
+                        }
+                    }
+                }
+            }
+        });
+        
+        {% if popular_categories %}
+        // Categories Chart
+        var catCtx = document.getElementById('categoriesChart').getContext('2d');
+        var categoriesChart = new Chart(catCtx, {
+            type: 'bar',
+            data: {
+                labels: [
+                    {% for category, count, loan_count in popular_categories %}
+                        '{{ category or "Non catégorisé" }}',
+                    {% endfor %}
+                ],
+                datasets: [{
+                    label: 'Livres',
+                    data: [
+                        {% for category, count, loan_count in popular_categories %}
+                            {{ count }},
+                        {% endfor %}
+                    ],
+                    backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                    borderColor: 'rgba(0, 123, 255, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Emprunts',
+                    data: [
+                        {% for category, count, loan_count in popular_categories %}
+                            {{ loan_count }},
+                        {% endfor %}
+                    ],
+                    backgroundColor: 'rgba(40, 167, 69, 0.5)',
+                    borderColor: 'rgba(40, 167, 69, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        precision: 0
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Livres et emprunts par catégorie',
+                        font: {
+                            size: 14
+                        }
+                    }
+                }
+            }
+        });
+        {% endif %}
+    });
+</script>
+{% endblock %}
