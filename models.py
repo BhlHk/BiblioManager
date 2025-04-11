@@ -1,5 +1,58 @@
 from datetime import datetime, timedelta
 from app import db
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+
+
+class User(UserMixin, db.Model):
+    """Model representing a user in the system."""
+    __tablename__ = 'auth_user'  # Renommer la table pour éviter les conflits avec le mot réservé 'user'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256))
+    role = db.Column(db.String(20), default='member')  # 'member', 'librarian', 'admin'
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_login = db.Column(db.DateTime)
+    
+    # Relationship (optional - only for members)
+    member_id = db.Column(db.Integer, db.ForeignKey('member.id'), nullable=True)
+    
+    def __repr__(self):
+        return f'<User {self.username}>'
+    
+    def set_password(self, password):
+        """Set the user's password."""
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        """Check if the provided password matches the user's password."""
+        return check_password_hash(self.password_hash, password)
+    
+    def is_admin(self):
+        """Check if the user is an admin."""
+        return self.role == 'admin'
+    
+    def is_librarian(self):
+        """Check if the user is a librarian."""
+        return self.role == 'librarian' or self.role == 'admin'
+    
+    def is_member(self):
+        """Check if the user is a member."""
+        return self.role == 'member'
+    
+    def to_dict(self):
+        """Convert user object to dictionary for API responses."""
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'role': self.role,
+            'is_active': self.is_active,
+            'last_login': self.last_login.isoformat() if self.last_login else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
 
 class Book(db.Model):
     """Model representing a book in the library."""
@@ -53,8 +106,9 @@ class Member(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationship
+    # Relationships
     loans = db.relationship('Loan', backref='member', lazy=True, cascade="all, delete-orphan")
+    user = db.relationship('User', backref='member_profile', uselist=False, lazy=True)
     
     def __repr__(self):
         return f'<Member {self.first_name} {self.last_name}>'

@@ -3,6 +3,7 @@ import logging
 
 from flask import Flask, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -31,6 +32,13 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # Initialize app with SQLAlchemy
 db.init_app(app)
 
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'  # Définir la vue de connexion
+login_manager.login_message = "Veuillez vous connecter pour accéder à cette page."
+login_manager.login_message_category = "info"
+
 # Import models and create tables
 with app.app_context():
     # Import models
@@ -40,6 +48,12 @@ with app.app_context():
     db.create_all()
     
     app.logger.info("Database tables created")
+    
+# User loader callback for Flask-Login
+@login_manager.user_loader
+def load_user(user_id):
+    from models import User
+    return User.query.get(int(user_id))
 
 # Register blueprints/routes
 from routes.book_routes import book_bp
