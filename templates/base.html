@@ -105,23 +105,28 @@
                         <button class="btn btn-outline-light dropdown-toggle" type="button" 
                                 id="toolsDropdown" data-bs-toggle="dropdown" 
                                 aria-expanded="false">
-                            <i class="fas fa-tools me-1"></i> Tools
+                            <i class="fas fa-tools me-1"></i> Outils
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="toolsDropdown">
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('loans.overdue_check') }}">
-                                    <i class="fas fa-exclamation-circle me-1 text-warning"></i> Check Overdue
+                                    <i class="fas fa-exclamation-circle me-1 text-warning"></i> Vérifier retards
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('loans.upcoming_due') }}">
-                                    <i class="fas fa-bell me-1 text-info"></i> Send Due Reminders
+                                    <i class="fas fa-bell me-1 text-info"></i> Envoyer rappels
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
+                                <a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">
+                                    <i class="fas fa-cogs me-1 text-danger"></i> Administration
+                                </a>
+                            </li>
+                            <li>
                                 <a class="dropdown-item" href="{{ url_for('api.get_statistics') }}">
-                                    <i class="fas fa-chart-bar me-1 text-success"></i> API Statistics
+                                    <i class="fas fa-chart-bar me-1 text-success"></i> Statistiques API
                                 </a>
                             </li>
                         </ul>
@@ -168,32 +173,45 @@
     <footer class="bg-dark text-light mt-5">
         <div class="container py-3">
             <div class="row">
-                <div class="col-md-6">
-                    <h5>Library Management System</h5>
-                    <p class="text-muted">A complete solution for managing your library's books, members, and loans.</p>
+                <div class="col-md-5">
+                    <h5>Système de gestion de bibliothèque</h5>
+                    <p class="text-muted">Une solution complète pour gérer les livres, les membres et les emprunts de votre bibliothèque.</p>
+                    <div class="mt-3">
+                        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-sm btn-outline-light">
+                            <i class="fas fa-cogs me-1"></i> Espace d'administration
+                        </a>
+                    </div>
                 </div>
                 <div class="col-md-3">
-                    <h5>Quick Links</h5>
+                    <h5>Liens rapides</h5>
                     <ul class="list-unstyled">
-                        <li><a href="{{ url_for('home') }}" class="text-decoration-none">Home</a></li>
-                        <li><a href="{{ url_for('books.index') }}" class="text-decoration-none">Books</a></li>
-                        <li><a href="{{ url_for('members.index') }}" class="text-decoration-none">Members</a></li>
-                        <li><a href="{{ url_for('loans.index') }}" class="text-decoration-none">Loans</a></li>
+                        <li><a href="{{ url_for('home') }}" class="text-decoration-none">Accueil</a></li>
+                        <li><a href="{{ url_for('books.index') }}" class="text-decoration-none">Livres</a></li>
+                        <li><a href="{{ url_for('members.index') }}" class="text-decoration-none">Membres</a></li>
+                        <li><a href="{{ url_for('loans.index') }}" class="text-decoration-none">Emprunts</a></li>
+                        <li><a href="{{ url_for('members.dashboard') }}" class="text-decoration-none">Tableau de bord</a></li>
                     </ul>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <h5>API</h5>
                     <ul class="list-unstyled">
-                        <li><a href="{{ url_for('api.get_books') }}" class="text-decoration-none">Books API</a></li>
-                        <li><a href="{{ url_for('api.get_members') }}" class="text-decoration-none">Members API</a></li>
-                        <li><a href="{{ url_for('api.get_loans') }}" class="text-decoration-none">Loans API</a></li>
-                        <li><a href="{{ url_for('api.get_statistics') }}" class="text-decoration-none">Statistics API</a></li>
+                        <li><a href="{{ url_for('api.get_books') }}" class="text-decoration-none">Livres</a></li>
+                        <li><a href="{{ url_for('api.get_members') }}" class="text-decoration-none">Membres</a></li>
+                        <li><a href="{{ url_for('api.get_loans') }}" class="text-decoration-none">Emprunts</a></li>
+                        <li><a href="{{ url_for('api.get_statistics') }}" class="text-decoration-none">Statistiques</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h5>Administration</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none">Tableau de bord</a></li>
+                        <li><a href="{{ url_for('admin.system_status') }}" class="text-decoration-none">État du système</a></li>
                     </ul>
                 </div>
             </div>
             <hr>
             <div class="text-center">
-                <p>&copy; <span id="current-year">2023</span> Library Management System. All rights reserved.</p>
+                <p>&copy; <span id="current-year">2023</span> Système de gestion de bibliothèque. Tous droits réservés.</p>
             </div>
         </div>
     </footer>
