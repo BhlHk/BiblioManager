@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Mon Profil{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Card with user profile -->
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Profil Utilisateur</h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=random&size=128" class="rounded-circle img-thumbnail" alt="Avatar">
+                    </div>
+                    <h5 class="card-title">{{ user.username }}</h5>
+                    <p class="card-text text-muted">{{ user.email }}</p>
+                    
+                    <div class="badge bg-primary mb-3">
+                        {% if user.is_admin() %}
+                            Administrateur
+                        {% elif user.is_librarian() %}
+                            Bibliothécaire
+                        {% else %}
+                            Membre
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        {% if user.is_admin() %}
+                            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-primary">Tableau de bord d'administration</a>
+                        {% elif user.is_librarian() %}
+                            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-primary">Tableau de bord de bibliothèque</a>
+                        {% elif user.member_id %}
+                            <a href="{{ url_for('members.show', id=user.member_id) }}" class="btn btn-outline-primary">Profil de membre</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    <small>Membre depuis: {{ user.created_at.strftime('%d/%m/%Y') }}</small><br>
+                    {% if user.last_login %}
+                        <small>Dernière connexion: {{ user.last_login.strftime('%d/%m/%Y %H:%M') }}</small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent activity or information -->
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Informations</h4>
+                </div>
+                <div class="card-body">
+                    {% if user.is_member() and user.member_id %}
+                        <h5>Profil de Membre</h5>
+                        <p>Vous êtes inscrit comme membre de la bibliothèque. Consultez votre profil de membre pour voir vos emprunts et informations personnelles.</p>
+                        <a href="{{ url_for('members.show', id=user.member_id) }}" class="btn btn-primary">Voir mon profil de membre</a>
+                    {% elif user.is_member() and not user.member_id %}
+                        <div class="alert alert-info">
+                            <h5>Profil de membre non lié</h5>
+                            <p>Votre compte utilisateur n'est pas encore lié à un profil de membre de la bibliothèque. Pour emprunter des livres, veuillez créer un profil de membre.</p>
+                            <a href="{{ url_for('members.create') }}" class="btn btn-primary">Créer un profil de membre</a>
+                        </div>
+                    {% elif user.is_librarian() %}
+                        <h5>Fonctions de Bibliothécaire</h5>
+                        <div class="list-group">
+                            <a href="{{ url_for('admin.dashboard') }}" class="list-group-item list-group-item-action">Tableau de bord</a>
+                            <a href="{{ url_for('books.index') }}" class="list-group-item list-group-item-action">Gérer les livres</a>
+                            <a href="{{ url_for('members.index') }}" class="list-group-item list-group-item-action">Gérer les membres</a>
+                            <a href="{{ url_for('loans.index') }}" class="list-group-item list-group-item-action">Gérer les emprunts</a>
+                        </div>
+                    {% elif user.is_admin() %}
+                        <h5>Fonctions d'Administrateur</h5>
+                        <div class="list-group">
+                            <a href="{{ url_for('admin.dashboard') }}" class="list-group-item list-group-item-action">Tableau de bord</a>
+                            <a href="{{ url_for('admin.system_status') }}" class="list-group-item list-group-item-action">État du système</a>
+                            <a href="{{ url_for('books.index') }}" class="list-group-item list-group-item-action">Gérer les livres</a>
+                            <a href="{{ url_for('members.index') }}" class="list-group-item list-group-item-action">Gérer les membres</a>
+                            <a href="{{ url_for('loans.index') }}" class="list-group-item list-group-item-action">Gérer les emprunts</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
